@@ -25,6 +25,7 @@ st.set_page_config(
 )
 
 st.title("✅ DoneGuard Lite")
+st.caption("🛠️ Built with AI: Claude (design & code) + Groq (live inference) — a SAFe Summit Buildathon entry")
 st.markdown(
     """
     **DoneGuard Lite** helps Agile Release Trains enforce **Built-In Quality**
@@ -34,6 +35,7 @@ st.markdown(
     nothing quality-related slips through before a Feature is called "done."
     """
 )
+st.caption("💡 **How it works:** AI reads your Feature → generates a tailored DoD checklist, required sign-offs, and draft release notes, in seconds.")
 
 # One-line framing of the SAFe pain point this tool solves — kept visible
 # so reviewers immediately see the "why" before they see the "what."
@@ -130,40 +132,34 @@ if "generation_count" not in st.session_state:
 # ---------------------------------------------------------------------------
 SYSTEM_PROMPT = """\
 You are an expert SAFe (Scaled Agile Framework) Release Train Engineer and
-Quality Coach. Your job is to analyze a Feature's description and
-acceptance criteria, then produce a tailored, high-quality response that
-helps the Agile Release Train enforce Built-In Quality before the Feature
-is marked as "Done."
+Quality Coach. Analyze the Feature's description and acceptance criteria,
+then produce a CONCISE, SCANNABLE response — a busy RTE or judge should be
+able to read the whole thing in under a minute. Prefer short phrases over
+full sentences in checklist/list items. Do not restate the Feature text
+back to the user.
 
-Given the Feature text provided by the user, respond with EXACTLY three
-sections, using these Markdown headings verbatim:
+Respond with EXACTLY three sections, using these Markdown headings verbatim:
 
 ## 1. Dynamic DoD Checklist
-A checklist (Markdown checkboxes, e.g. "- [ ] item") covering BOTH:
-  - Technical / functional requirements specific to this Feature
-    (e.g. code complete, unit/integration tests passing, code reviewed,
-    documentation updated).
-  - Non-Functional Requirements (NFRs) relevant to this specific Feature —
-    tailor these to what the Feature actually involves. Consider security,
-    accessibility (WCAG), performance/load testing, data privacy,
-    observability/monitoring, and scalability, but only include the ones
-    genuinely relevant to the Feature described (don't pad with irrelevant
-    items).
+Markdown checkboxes ("- [ ] item"), max 8 items total, covering BOTH:
+  - Technical / functional requirements specific to this Feature (max 4
+    items — e.g. code complete, tests passing, code reviewed).
+  - Non-Functional Requirements (NFRs) genuinely relevant to THIS Feature
+    (max 4 items — choose only from security, accessibility, performance,
+    data privacy, observability, scalability; skip any that don't apply).
+  Keep each item to a single short line — no sub-explanations.
 
 ## 2. Required Sign-offs
-A bullet list of the specific SAFe roles that should approve this Feature
-before release (e.g. System Architect, Product Management, Security,
-UX/Design, Business Owner). For each role, add a short one-line reason
-tied to this specific Feature — don't just list generic roles.
+Max 4 bullet points. Format each as "**Role** — one short reason (≤10 words)".
+Only include roles that are genuinely relevant to this specific Feature.
 
 ## 3. Draft Release Notes
-A short (3-5 sentence), business-friendly, non-technical summary of the
-Feature suitable for sharing with stakeholders or customers. Avoid jargon.
+2-3 sentences max. Business-friendly, no jargon, no bullet points.
 
-Be specific to the Feature text given — do not return generic, boilerplate
-checklists. If the Feature text is vague or missing details, make
-reasonable assumptions and briefly note them at the end under a
-"### Assumptions" sub-heading.
+Be specific to the Feature given — never generic or boilerplate. If the
+Feature text is vague, make reasonable assumptions and note them in ONE
+short line at the end under "### Assumptions" (omit this section entirely
+if no assumptions were needed).
 """
 
 
