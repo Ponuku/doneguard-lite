@@ -77,43 +77,48 @@ textarea:focus {{
     border-color: {GUARD_GREEN} !important;
     box-shadow: 0 0 0 1px {GUARD_GREEN} !important;
 }}
+/* Tighten default vertical spacing between blocks so the Generate button
+   is reachable without scrolling on most screens. Streamlit's vertical
+   block container uses flexbox gap for spacing in recent versions. */
+div[data-testid="stVerticalBlock"] {{
+    gap: 0.5rem !important;
+}}
+.stMarkdown p {{ margin-bottom: 0.4rem; }}
+/* Decorative polish on native elements — purely additive. If this CSS
+   block ever fails to load, the elements above still render with
+   Streamlit's default styling; nothing goes blank. */
+h1 {{
+    font-family: 'Fraunces', serif !important;
+    color: {INK} !important;
+}}
 </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------------
-# Header — custom title + pain-point "flag" callout, replacing Streamlit's
-# default title styling and blue st.info() box.
+# Header — native Streamlit components (title, badge, pain-point flag).
+# Deliberately NOT raw HTML: some corporate networks/browsers strip inline
+# HTML/CSS as an XSS precaution, which would leave this section blank.
+# Native st.* calls always render regardless of any HTML sanitizer; the CSS
+# block above only adds visual polish on top and degrades gracefully if lost.
 # ---------------------------------------------------------------------------
-st.markdown(f"""
-<h1 style="font-family:'Fraunces',serif; font-weight:700; font-size:2.5rem;
-           color:{INK}; margin-bottom:0.4rem;">🛡️ DoneGuard Lite</h1>
-<div style="display:inline-block; background-color:{INK}; color:{PAPER_BG};
-            font-size:0.78rem; font-weight:500; letter-spacing:0.02em;
-            padding:4px 12px; border-radius:20px; margin-bottom:1rem;">
-  ⚡ Powered by Claude AI + Groq
-</div>
-""", unsafe_allow_html=True)
+st.markdown("# 🛡️ DoneGuard Lite")
+st.caption("⚡ Powered by Claude AI + Groq")
 
-st.markdown(f"""
-<div style="border-left:3px solid {FLAG_AMBER}; background-color:#FBF3E7;
-            padding:14px 18px; margin:16px 0; border-radius:2px;">
-  <strong style="color:{INK};">The pain point —</strong>
-  <span style="color:{INK};">DoD checklists are usually generic, copy-pasted,
-  and rarely tailored per Feature, so NFRs like security, accessibility, and
-  performance quietly get skipped.</span>
-</div>
-""", unsafe_allow_html=True)
+st.warning(
+    "**The pain point —** DoD checklists are usually generic, copy-pasted, "
+    "and rarely tailored per Feature, so NFRs like security, accessibility, "
+    "and performance quietly get skipped."
+)
 
 st.markdown(
     """
     **DoneGuard Lite** helps Agile Release Trains enforce **Built-In Quality**
     under SAFe. Paste a Feature's description and acceptance criteria below,
     and the app generates a tailored **Definition of Done checklist**,
-    the **required role sign-offs**, and a **draft release note** — so
-    nothing quality-related slips through before a Feature is called "done."
+    the **required role sign-offs**, and a **draft release note**.
     """
 )
-st.caption("💡 **How it works:** AI reads your Feature and generates all three, tailored to what you pasted — in seconds, not a copy-pasted template.")
+st.caption("💡 **How it works:** AI reads your Feature and generates all three, tailored to what you pasted.")
 
 # ---------------------------------------------------------------------------
 # API key — reads from Streamlit's Secrets so ANY visitor to this URL can
@@ -211,7 +216,7 @@ sample_cols[-1].button("🗑️ Clear", on_click=_clear_all, use_container_width
 
 feature_text = st.text_area(
     "📝 **Paste the Feature Description and Acceptance Criteria**",
-    height=250,
+    height=160,
     placeholder=(
         "e.g. Feature: Allow customers to reset their password via email.\n"
         "Acceptance Criteria:\n"
