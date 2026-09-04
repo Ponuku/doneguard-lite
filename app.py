@@ -123,13 +123,17 @@ if "feature_text" not in st.session_state:
 def _load_sample(sample_text):
     st.session_state["feature_text"] = sample_text
 
+def _clear_all():
+    st.session_state["feature_text"] = ""
+
 st.caption("Try a sample Feature:")
-sample_cols = st.columns(len(SAMPLE_FEATURES))
+sample_cols = st.columns(len(SAMPLE_FEATURES) + 1)
 for col, (label, text) in zip(sample_cols, SAMPLE_FEATURES.items()):
     col.button(label, on_click=_load_sample, args=(text,), use_container_width=True)
+sample_cols[-1].button("🗑️ Clear", on_click=_clear_all, use_container_width=True)
 
 feature_text = st.text_area(
-    "Paste the Feature Description and Acceptance Criteria",
+    "📝 **Paste the Feature Description and Acceptance Criteria**",
     height=250,
     placeholder=(
         "e.g. Feature: Allow customers to reset their password via email.\n"
