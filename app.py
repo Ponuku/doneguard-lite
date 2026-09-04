@@ -81,7 +81,7 @@ textarea:focus {{
    is reachable without scrolling on most screens. Streamlit's vertical
    block container uses flexbox gap for spacing in recent versions. */
 div[data-testid="stVerticalBlock"] {{
-    gap: 0.5rem !important;
+    gap: 0.3rem !important;
 }}
 .stMarkdown p {{ margin-bottom: 0.4rem; }}
 /* Decorative polish on native elements — purely additive. If this CSS
@@ -90,6 +90,18 @@ div[data-testid="stVerticalBlock"] {{
 h1 {{
     font-family: 'Fraunces', serif !important;
     color: {INK} !important;
+    margin-top: 0 !important;
+    margin-bottom: 0.1rem !important;
+    padding-bottom: 0 !important;
+}}
+div[data-testid="stCaptionContainer"] {{
+    margin-top: -0.5rem !important;
+    margin-bottom: 0.3rem !important;
+}}
+div[data-testid="stAlert"] {{
+    margin-top: 0.2rem !important;
+    margin-bottom: 0.2rem !important;
+    padding: 0.6rem 1rem !important;
 }}
 </style>
 """, unsafe_allow_html=True)
