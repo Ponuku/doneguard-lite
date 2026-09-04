@@ -207,9 +207,13 @@ if "feature_text" not in st.session_state:
 
 def _load_sample(sample_text):
     st.session_state["feature_text"] = sample_text
+    st.session_state["last_result"] = None
+    st.session_state["last_feature"] = None
 
 def _clear_all():
     st.session_state["feature_text"] = ""
+    st.session_state["last_result"] = None
+    st.session_state["last_feature"] = None
 
 st.caption("Try a sample Feature:")
 sample_cols = st.columns(len(SAMPLE_FEATURES) + 1)
@@ -332,6 +336,10 @@ def build_docx(feature_text: str, result_text: str) -> bytes:
 # ---------------------------------------------------------------------------
 # Logic — validate input and call the Groq API
 # ---------------------------------------------------------------------------
+if "last_result" not in st.session_state:
+    st.session_state["last_result"] = None
+    st.session_state["last_feature"] = None
+
 if generate_clicked:
     if not api_key:
         st.warning("⚠️ Please enter your Groq API key in the sidebar first.")
@@ -358,20 +366,29 @@ if generate_clicked:
                     temperature=0.4,
                 )
 
-            result_text = response.choices[0].message.content
+            # Store in session_state (not a local variable) so the result
+            # survives later reruns — e.g. the Download button click below
+            # itself triggers a rerun, and a local variable wouldn't persist.
+            st.session_state["last_result"] = response.choices[0].message.content
+            st.session_state["last_feature"] = feature_text
             st.session_state["generation_count"] += 1
-
-            st.success("Definition of Done generated successfully!")
-            st.markdown("---")
-            st.markdown(result_text)
-
-            st.download_button(
-                "📥 Download as Word (.docx)",
-                data=build_docx(feature_text, result_text),
-                file_name="doneguard_definition_of_done.docx",
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            )
 
         except Exception as e:
             # Catches invalid API keys, network issues, rate limits, etc.
             st.error(f"❌ Something went wrong while calling the Groq API:\n\n{e}")
+            st.session_state["last_result"] = None
+
+# Rendered independently of generate_clicked, so it persists across ANY
+# rerun (including the Download button's own click) until Clear is pressed
+# or a new generation replaces it.
+if st.session_state["last_result"]:
+    st.success("Definition of Done generated successfully!")
+    st.markdown("---")
+    st.markdown(st.session_state["last_result"])
+
+    st.download_button(
+        "📥 Download as Word (.docx)",
+        data=build_docx(st.session_state["last_feature"], st.session_state["last_result"]),
+        file_name="doneguard_definition_of_done.docx",
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    )
