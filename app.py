@@ -25,7 +25,7 @@ st.set_page_config(
 )
 
 st.title("✅ DoneGuard Lite")
-st.caption("🛠️ Built with AI: Claude (design & code) + Groq (live inference) — a SAFe Summit Buildathon entry")
+st.caption("🛠️ Built with AI: Claude (design & code) + Groq (live inference)")
 st.markdown(
     """
     **DoneGuard Lite** helps Agile Release Trains enforce **Built-In Quality**
