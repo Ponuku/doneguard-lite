@@ -308,6 +308,13 @@ if generate_clicked:
             st.markdown("---")
             st.markdown(result_text)
 
+            st.download_button(
+                "📥 Download as Markdown",
+                data=result_text,
+                file_name="doneguard_definition_of_done.md",
+                mime="text/markdown",
+            )
+
         except Exception as e:
             # Catches invalid API keys, network issues, rate limits, etc.
             st.error(f"❌ Something went wrong while calling the Groq API:\n\n{e}")
