@@ -129,7 +129,13 @@ api_key = st.secrets.get("GROQ_API_KEY", None)
 
 with st.sidebar:
     if api_key:
-        st.success("✅ Running on a shared API key — no setup needed to try the app!")
+        st.markdown(f"""
+        <div style="background-color:#EFEDE5; border-left:3px solid {GUARD_GREEN};
+                    padding:10px 14px; border-radius:2px; font-size:0.85rem;
+                    color:{INK};">
+          ✅ Ready to go — no setup needed to try the app.
+        </div>
+        """, unsafe_allow_html=True)
     else:
         st.header("🔑 Groq API Key")
         api_key = st.text_input(
