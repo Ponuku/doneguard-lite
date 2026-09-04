@@ -46,19 +46,31 @@ st.info(
 )
 
 # ---------------------------------------------------------------------------
-# Sidebar — API key input
+# API key — reads from Streamlit's Secrets so ANY visitor to this URL can
+# use the app without entering their own key. You (the app owner) set this
+# once in Streamlit Cloud's dashboard: App settings → Secrets, as:
+#
+#   GROQ_API_KEY = "your-real-key-here"
+#
+# Falls back to a sidebar input for local development/testing, or if no
+# secret has been configured yet.
 # ---------------------------------------------------------------------------
+api_key = st.secrets.get("GROQ_API_KEY", None)
+
 with st.sidebar:
-    st.header("🔑 Groq API Key")
-    api_key = st.text_input(
-        "Enter your Groq API key",
-        type="password",
-        help="Your key is used only for this session and is never stored.",
-    )
-    st.caption(
-        "Don't have a key? Get a free one (no credit card) at "
-        "[console.groq.com/keys](https://console.groq.com/keys)."
-    )
+    if api_key:
+        st.success("✅ Running on a shared API key — no setup needed to try the app!")
+    else:
+        st.header("🔑 Groq API Key")
+        api_key = st.text_input(
+            "Enter your Groq API key",
+            type="password",
+            help="Your key is used only for this session and is never stored.",
+        )
+        st.caption(
+            "Don't have a key? Get a free one (no credit card) at "
+            "[console.groq.com/keys](https://console.groq.com/keys)."
+        )
 
 # ---------------------------------------------------------------------------
 # Main screen — user input
@@ -104,6 +116,14 @@ feature_text = st.text_area(
 )
 
 generate_clicked = st.button("Generate Definition of Done", type="primary")
+
+# Simple per-browser-session usage cap. Since this app now runs on a single
+# shared API key (see above), this protects Groq's free-tier rate limits
+# from being exhausted by one person spamming the button, while still
+# giving each peer plenty of room to try the tool out.
+MAX_GENERATIONS_PER_SESSION = 8
+if "generation_count" not in st.session_state:
+    st.session_state["generation_count"] = 0
 
 # ---------------------------------------------------------------------------
 # System prompt — instructs the model on exactly what to produce
@@ -155,6 +175,13 @@ if generate_clicked:
         st.warning("⚠️ Please enter your Groq API key in the sidebar first.")
     elif not feature_text.strip():
         st.warning("⚠️ Please paste a Feature description before generating.")
+    elif st.session_state["generation_count"] >= MAX_GENERATIONS_PER_SESSION:
+        st.warning(
+            f"⚠️ You've reached the {MAX_GENERATIONS_PER_SESSION}-generation limit "
+            "for this session (this keeps the shared demo key available for "
+            "everyone). Refresh the page to reset, or use your own free Groq "
+            "key in the sidebar for unlimited use."
+        )
     else:
         try:
             client = Groq(api_key=api_key)
@@ -170,6 +197,7 @@ if generate_clicked:
                 )
 
             result_text = response.choices[0].message.content
+            st.session_state["generation_count"] += 1
 
             st.success("Definition of Done generated successfully!")
             st.markdown("---")
