@@ -76,9 +76,11 @@ with st.sidebar:
 # ---------------------------------------------------------------------------
 st.subheader("Feature Details")
 
-# A ready-made example so reviewers/judges can test the app in one click,
-# without needing to write or paste their own Feature description.
-SAMPLE_FEATURE = """\
+# Three varied sample Features so reviewers/judges can see the AI tailor
+# its output differently depending on what kind of Feature it's given —
+# not just repeat the same demo every time.
+SAMPLE_FEATURES = {
+    "🔐 Auth — Password Reset": """\
 Feature: Allow customers to reset their password via email.
 
 Acceptance Criteria:
@@ -88,17 +90,43 @@ Acceptance Criteria:
 4. New password must meet complexity rules (min 8 characters, 1 number, 1 symbol).
 5. User receives a confirmation email once the password has been successfully changed.
 6. All password reset attempts are logged for audit purposes.
-"""
+""",
+    "🔌 Backend — Payment API": """\
+Feature: Expose a new REST API endpoint for processing customer refunds.
 
-# Initialize the text area's session state once, so the sample-fill button
+Acceptance Criteria:
+1. Endpoint accepts an order ID and refund amount, validates against the original payment.
+2. Partial refunds are supported, but total refunded cannot exceed the original charge.
+3. Endpoint is authenticated via OAuth2 and rate-limited to prevent abuse.
+4. A refund event is published to the downstream billing and analytics services.
+5. Failed refunds return a clear error code and are retried up to 3 times automatically.
+6. All refund transactions are logged with a correlation ID for support traceability.
+""",
+    "📊 Data — Sales Dashboard": """\
+Feature: Add a real-time regional sales dashboard for store managers.
+
+Acceptance Criteria:
+1. Dashboard displays daily, weekly, and monthly sales totals filterable by region and store.
+2. Data refreshes automatically every 5 minutes from the sales data warehouse.
+3. Managers can only view data for stores within their assigned region (role-based access).
+4. Dashboard must load within 3 seconds on a standard broadband connection.
+5. Exportable as CSV for offline reporting.
+6. Handles missing/delayed store data gracefully without breaking the dashboard.
+""",
+}
+
+# Initialize the text area's session state once, so the sample-fill buttons
 # can update it and have the change reflected in the widget below.
 if "feature_text" not in st.session_state:
     st.session_state["feature_text"] = ""
 
-def _load_sample():
-    st.session_state["feature_text"] = SAMPLE_FEATURE
+def _load_sample(sample_text):
+    st.session_state["feature_text"] = sample_text
 
-st.button("📋 Try a sample Feature", on_click=_load_sample)
+st.caption("Try a sample Feature:")
+sample_cols = st.columns(len(SAMPLE_FEATURES))
+for col, (label, text) in zip(sample_cols, SAMPLE_FEATURES.items()):
+    col.button(label, on_click=_load_sample, args=(text,), use_container_width=True)
 
 feature_text = st.text_area(
     "Paste the Feature Description and Acceptance Criteria",
