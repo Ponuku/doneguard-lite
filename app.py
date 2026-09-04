@@ -86,7 +86,12 @@ textarea:focus {{
 # ---------------------------------------------------------------------------
 st.markdown(f"""
 <h1 style="font-family:'Fraunces',serif; font-weight:700; font-size:2.5rem;
-           color:{INK}; margin-bottom:0.3rem;">🛡️ DoneGuard Lite</h1>
+           color:{INK}; margin-bottom:0.4rem;">🛡️ DoneGuard Lite</h1>
+<div style="display:inline-block; background-color:{INK}; color:{PAPER_BG};
+            font-size:0.78rem; font-weight:500; letter-spacing:0.02em;
+            padding:4px 12px; border-radius:20px; margin-bottom:1rem;">
+  ⚡ Powered by Claude AI + Groq
+</div>
 """, unsafe_allow_html=True)
 
 st.markdown(f"""
