@@ -25,27 +25,24 @@ st.set_page_config(
 )
 
 st.title("✅ DoneGuard Lite")
-st.caption("🛠️ Built with AI: Claude (design & code) + Groq (live inference)")
+
+# Pain point leads — hooks the "why" before the "what."
+st.info(
+    "🎯 **The pain point:** DoD checklists are usually generic, copy-pasted, "
+    "and rarely tailored per Feature — so NFRs like security, accessibility, "
+    "and performance quietly get skipped."
+)
+
 st.markdown(
     """
     **DoneGuard Lite** helps Agile Release Trains enforce **Built-In Quality**
     under SAFe. Paste a Feature's description and acceptance criteria below,
-    and the app will generate a tailored **Definition of Done checklist**,
+    and the app generates a tailored **Definition of Done checklist**,
     the **required role sign-offs**, and a **draft release note** — so
     nothing quality-related slips through before a Feature is called "done."
     """
 )
-st.caption("💡 **How it works:** AI reads your Feature → generates a tailored DoD checklist, required sign-offs, and draft release notes, in seconds.")
-
-# One-line framing of the SAFe pain point this tool solves — kept visible
-# so reviewers immediately see the "why" before they see the "what."
-st.info(
-    "🎯 **The pain point:** DoD checklists are usually generic, copy-pasted, "
-    "and rarely tailored per Feature — so NFRs like security, accessibility, "
-    "and performance quietly get skipped. DoneGuard Lite generates a "
-    "**Feature-specific** DoD in seconds, so quality is built in, not "
-    "bolted on at the end."
-)
+st.caption("💡 **How it works:** AI reads your Feature and generates all three, tailored to what you pasted — in seconds, not a copy-pasted template.")
 
 # ---------------------------------------------------------------------------
 # API key — reads from Streamlit's Secrets so ANY visitor to this URL can
