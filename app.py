@@ -20,18 +20,84 @@ from groq import Groq
 # ---------------------------------------------------------------------------
 st.set_page_config(
     page_title="DoneGuard Lite",
-    page_icon="✅",
+    page_icon="🛡️",
     layout="centered",
 )
 
-st.title("✅ DoneGuard Lite")
+# ---------------------------------------------------------------------------
+# Visual design system — a focused palette/type choice instead of Streamlit's
+# default look. Deep navy ink + paper background + emerald "verified" accent,
+# a serif display face for the title, IBM Plex Sans for body/UI text.
+# ---------------------------------------------------------------------------
+INK = "#16233D"
+GUARD_GREEN = "#1F7A5C"
+FLAG_AMBER = "#C97A1A"
+PAPER_BG = "#F7F6F2"
+BORDER = "#DEDAD0"
 
-# Pain point leads — hooks the "why" before the "what."
-st.info(
-    "🎯 **The pain point:** DoD checklists are usually generic, copy-pasted, "
-    "and rarely tailored per Feature — so NFRs like security, accessibility, "
-    "and performance quietly get skipped."
-)
+st.markdown(f"""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+html, body, [class*="css"] {{
+    font-family: 'IBM Plex Sans', sans-serif;
+}}
+.stApp {{ background-color: {PAPER_BG}; }}
+section[data-testid="stSidebar"] {{
+    background-color: #EFEDE5;
+    border-right: 1px solid {BORDER};
+}}
+div[data-testid="stButton"] button {{
+    font-family: 'IBM Plex Sans', sans-serif;
+    border-radius: 4px;
+    border: 1px solid {INK};
+    color: {INK};
+    background-color: transparent;
+    font-weight: 500;
+}}
+div[data-testid="stButton"] button:hover {{
+    border-color: {GUARD_GREEN};
+    color: {GUARD_GREEN};
+}}
+div[data-testid="stButton"] button[kind="primary"] {{
+    background-color: {GUARD_GREEN};
+    border-color: {GUARD_GREEN};
+    color: {PAPER_BG};
+}}
+div[data-testid="stButton"] button[kind="primary"]:hover {{
+    background-color: #185F49;
+    border-color: #185F49;
+}}
+textarea {{
+    border-radius: 4px !important;
+    border: 1px solid {BORDER} !important;
+    font-family: 'IBM Plex Sans', sans-serif !important;
+}}
+textarea:focus {{
+    border-color: {GUARD_GREEN} !important;
+    box-shadow: 0 0 0 1px {GUARD_GREEN} !important;
+}}
+</style>
+""", unsafe_allow_html=True)
+
+# ---------------------------------------------------------------------------
+# Header — custom title + pain-point "flag" callout, replacing Streamlit's
+# default title styling and blue st.info() box.
+# ---------------------------------------------------------------------------
+st.markdown(f"""
+<h1 style="font-family:'Fraunces',serif; font-weight:700; font-size:2.5rem;
+           color:{INK}; margin-bottom:0.3rem;">🛡️ DoneGuard Lite</h1>
+""", unsafe_allow_html=True)
+
+st.markdown(f"""
+<div style="border-left:3px solid {FLAG_AMBER}; background-color:#FBF3E7;
+            padding:14px 18px; margin:16px 0; border-radius:2px;">
+  <strong style="color:{INK};">The pain point —</strong>
+  <span style="color:{INK};">DoD checklists are usually generic, copy-pasted,
+  and rarely tailored per Feature, so NFRs like security, accessibility, and
+  performance quietly get skipped.</span>
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown(
     """
