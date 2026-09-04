@@ -4,14 +4,15 @@ DoneGuard Lite
 A single-page Streamlit app that helps Agile Release Trains (SAFe) enforce
 Built-In Quality by automatically generating a Feature-level Definition of
 Done (DoD) checklist, required sign-offs, and draft release notes — powered
-by the OpenAI API.
+by the Groq API (OpenAI-compatible chat completions, free tier, no card
+required).
 
 Run with:
     streamlit run app.py
 """
 
 import streamlit as st
-from openai import OpenAI
+from groq import Groq
 
 
 # ---------------------------------------------------------------------------
@@ -48,15 +49,15 @@ st.info(
 # Sidebar — API key input
 # ---------------------------------------------------------------------------
 with st.sidebar:
-    st.header("🔑 OpenAI API Key")
+    st.header("🔑 Groq API Key")
     api_key = st.text_input(
-        "Enter your OpenAI API key",
+        "Enter your Groq API key",
         type="password",
         help="Your key is used only for this session and is never stored.",
     )
     st.caption(
-        "Don't have a key? Create one at "
-        "[platform.openai.com/api-keys](https://platform.openai.com/api-keys)."
+        "Don't have a key? Get a free one (no credit card) at "
+        "[console.groq.com/keys](https://console.groq.com/keys)."
     )
 
 # ---------------------------------------------------------------------------
@@ -147,20 +148,20 @@ reasonable assumptions and briefly note them at the end under a
 
 
 # ---------------------------------------------------------------------------
-# Logic — validate input and call the OpenAI API
+# Logic — validate input and call the Groq API
 # ---------------------------------------------------------------------------
 if generate_clicked:
     if not api_key:
-        st.warning("⚠️ Please enter your OpenAI API key in the sidebar first.")
+        st.warning("⚠️ Please enter your Groq API key in the sidebar first.")
     elif not feature_text.strip():
         st.warning("⚠️ Please paste a Feature description before generating.")
     else:
         try:
-            client = OpenAI(api_key=api_key)
+            client = Groq(api_key=api_key)
 
             with st.spinner("Analyzing Feature and generating compliance requirements..."):
                 response = client.chat.completions.create(
-                    model="gpt-4o-mini",  # fast + cost-effective; upgrade to "gpt-4o" for higher quality
+                    model="openai/gpt-oss-120b",  # Groq's free-tier flagship model; swap for a lighter/faster model if you hit rate limits
                     messages=[
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": feature_text},
@@ -176,4 +177,4 @@ if generate_clicked:
 
         except Exception as e:
             # Catches invalid API keys, network issues, rate limits, etc.
-            st.error(f"❌ Something went wrong while calling the OpenAI API:\n\n{e}")
+            st.error(f"❌ Something went wrong while calling the Groq API:\n\n{e}")
