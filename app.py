@@ -11,8 +11,13 @@ Run with:
     streamlit run app.py
 """
 
+import io
+import re
+
 import streamlit as st
 from groq import Groq
+from docx import Document
+from docx.shared import Pt, RGBColor
 
 
 # ---------------------------------------------------------------------------
@@ -273,6 +278,58 @@ if no assumptions were needed).
 
 
 # ---------------------------------------------------------------------------
+# Word document builder — converts the AI's Markdown-style output into a
+# formatted .docx in memory (no disk writes), so it can be offered as a
+# one-click download without any extra hosting/storage setup.
+# ---------------------------------------------------------------------------
+def _add_markdown_bold_runs(paragraph, text):
+    """Split text on **bold** markers and add runs with matching formatting."""
+    parts = re.split(r"(\*\*.*?\*\*)", text)
+    for part in parts:
+        if part.startswith("**") and part.endswith("**"):
+            run = paragraph.add_run(part[2:-2])
+            run.bold = True
+        elif part:
+            paragraph.add_run(part)
+
+
+def build_docx(feature_text: str, result_text: str) -> bytes:
+    doc = Document()
+
+    title = doc.add_heading("DoneGuard Lite — Definition of Done", level=0)
+    for run in title.runs:
+        run.font.color.rgb = RGBColor(0x16, 0x23, 0x3D)
+
+    doc.add_heading("Feature", level=2)
+    doc.add_paragraph(feature_text.strip())
+
+    for raw_line in result_text.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        if line.startswith("## "):
+            doc.add_heading(line[3:].lstrip("0123456789. "), level=1)
+        elif line.startswith("### "):
+            doc.add_heading(line[4:], level=2)
+        elif line.startswith("- [ ]") or line.startswith("- [x]"):
+            p = doc.add_paragraph(style="List Bullet")
+            checkbox = "☐ " if "[ ]" in line[:6] else "☑ "
+            content = line.split("]", 1)[1].strip()
+            p.add_run(checkbox)
+            _add_markdown_bold_runs(p, content)
+        elif line.startswith("- "):
+            p = doc.add_paragraph(style="List Bullet")
+            _add_markdown_bold_runs(p, line[2:])
+        else:
+            p = doc.add_paragraph()
+            _add_markdown_bold_runs(p, line)
+
+    buffer = io.BytesIO()
+    doc.save(buffer)
+    return buffer.getvalue()
+
+
+# ---------------------------------------------------------------------------
 # Logic — validate input and call the Groq API
 # ---------------------------------------------------------------------------
 if generate_clicked:
@@ -309,10 +366,10 @@ if generate_clicked:
             st.markdown(result_text)
 
             st.download_button(
-                "📥 Download as Markdown",
-                data=result_text,
-                file_name="doneguard_definition_of_done.md",
-                mime="text/markdown",
+                "📥 Download as Word (.docx)",
+                data=build_docx(feature_text, result_text),
+                file_name="doneguard_definition_of_done.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             )
 
         except Exception as e:
