@@ -15,7 +15,7 @@ import io
 import re
 
 import streamlit as st
-from groq import Groq
+from groq import Groq, RateLimitError, APIConnectionError
 from docx import Document
 from docx.shared import Pt, RGBColor
 
@@ -373,8 +373,26 @@ if generate_clicked:
             st.session_state["last_feature"] = feature_text
             st.session_state["generation_count"] += 1
 
+        except RateLimitError:
+            # Groq's free tier shares a request-per-minute cap across ALL
+            # visitors to this app (it's not per-person) — this can happen
+            # if several people use the app around the same time.
+            st.warning(
+                "⏳ This tool is popular right now and hit a temporary usage "
+                "limit. Please wait about 30-60 seconds and click Generate "
+                "again — your input hasn't been lost."
+            )
+            st.session_state["last_result"] = None
+
+        except APIConnectionError:
+            st.error(
+                "🔌 Couldn't reach the Groq API right now — this is usually "
+                "a brief network hiccup. Please try again in a moment."
+            )
+            st.session_state["last_result"] = None
+
         except Exception as e:
-            # Catches invalid API keys, network issues, rate limits, etc.
+            # Catches invalid API keys and any other unexpected error.
             st.error(f"❌ Something went wrong while calling the Groq API:\n\n{e}")
             st.session_state["last_result"] = None
 
